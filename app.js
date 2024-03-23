@@ -27,8 +27,9 @@ app.get("/", function(req, res) {
 });
 
 app.post("/", function(req, res) {
+    if(req.body)
     var item = req.body.newItem;
-    
+
     if(req.body.list === "work") {
         work.push(item);
         res.redirect("/work");
@@ -45,6 +46,20 @@ app.get("/work", function(req, res) {
     res.render("list", {listTitle: "work", items: work});
 });
 
+
+app.post("/delete", function(req, res) {
+    var id = req.body.itemID;
+    var title = req.body.listName;
+    if(title == "work") {
+        work.splice(id, 1);
+        res.redirect("/work"); 
+    }
+    else {
+        items.splice(id,1);
+        res.redirect("/");
+    }
+    
+});
 //About page
 
 app.get("/about", function(req, res) {

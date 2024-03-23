@@ -9,14 +9,22 @@
         <div class="item">
             <input type="checkbox">
             <p>
-                <%= items[i] %>               <!--<i class="icon fa-solid fa-trash">--></i></i>
+                <%= items[i] %>               
+                 <!-- Form for delete button -->
+                 <form action="/delete" method="post">
+                    <input type="hidden" name="listName" value="<%= listTitle %>">
+                    <input type="hidden" name="itemId" value="<%= i %>">
+                    <button class="icon" type="submit"><i class="fa-solid fa-trash"></i></button>
+                </form>
             </p>
             
         </div>
         <%} %>
+
+        
     <form action="/" method="post">
         <input type="text" name="newItem" placeholder="new Item" autocomplete="off">
-        <button type="submit" name="list" value="<%= listTitle %>">+</button>
+        <button class="form-button" type="submit" name="list" value="<%= listTitle %>">+</button>
     </form>
 
 </div>
