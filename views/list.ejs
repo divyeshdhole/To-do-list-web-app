@@ -9,11 +9,12 @@
         <div class="item">
             <input type="checkbox">
             <p>
-                <%= items[i] %>               
+                <%= items[i].name %>  
+                           
                  <!-- Form for delete button -->
                  <form action="/delete" method="post">
                     <input type="hidden" name="listName" value="<%= listTitle %>">
-                    <input type="hidden" name="itemId" value="<%= i %>">
+                    <input type="hidden" name="itemId" value="<%= items[i]._id %>">
                     <button class="icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                 </form>
             </p>

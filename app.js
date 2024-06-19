@@ -1,6 +1,7 @@
 const express = require("express")
 const app = express()
 const bodyParser = require("body-parser")
+const mongoose = require("mongoose")
 app.use(express.static("public"))
 
 var items = [];
@@ -10,20 +11,41 @@ var work = [];
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
+mongoose.connect("mongodb://localhost:27017/todolistDB")
+const itemSchema = {
+    name: String
+}
+
+const Item = mongoose.model("Item", itemSchema)
+
+// const item1 = new Item({
+//     name: "hello"
+// })
+
+// const item2 = new Item({
+//     name: "namaste"
+// })
+
+// const item3 = new Item({
+//     name: "bye"
+// })
+
+// const defaultItems = [item1, item2, item3]
+// Item.insertMany(defaultItems)
+
 
 //Home route
 app.get("/", function(req, res) {
-    var today = new Date();
-    var currentDay = today.getDay();
-    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    let options =  {
-        weekday: "long",
-        day: "numeric",
-        month: "long"
-    };
+    Item.find()
+    .then(result=> {
+        res.render("list", {listTitle: "Today", items: result});
+    })
+    .catch(err => {
+        cosole.error('Error finding documents', err);
+        res.status(500).send('Error fetching items');
+            
+     })
 
-    day = today.toLocaleTimeString("en-US", options);
-    res.render("list", {listTitle: day, items: items});
 });
 
 app.post("/", function(req, res) {
@@ -35,7 +57,10 @@ app.post("/", function(req, res) {
         res.redirect("/work");
     }
     else {
-        items.push(item);
+        let i = new Item({
+            name: item
+        })
+        i.save()
         res.redirect("/");
     }
 });
@@ -48,15 +73,24 @@ app.get("/work", function(req, res) {
 
 
 app.post("/delete", function(req, res) {
-    var id = req.body.itemID;
+    var id = req.body.itemId;
     var title = req.body.listName;
+
     if(title == "work") {
         work.splice(id, 1);
         res.redirect("/work"); 
     }
     else {
-        items.splice(id,1);
-        res.redirect("/");
+        // console.log(id)
+        Item.deleteOne({_id: id})
+        .then(() => {
+            res.redirect("/");
+        })
+        .catch(err => {
+            console.error('Error deleting item', err);
+            res.status(500).send('Error deleting item');
+        });
+        
     }
     
 });
