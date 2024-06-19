@@ -4,8 +4,7 @@ const bodyParser = require("body-parser")
 const mongoose = require("mongoose")
 app.use(express.static("public"))
 
-var items = [];
-var work = [];
+
 
 
 app.set("view engine", "ejs");
@@ -47,13 +46,21 @@ app.get("/", function(req, res) {
      })
 
 });
+const workSchema = {
+    name: String
+}
+const WorkItem = mongoose.model("WorkItem", workSchema)
+
 
 app.post("/", function(req, res) {
     if(req.body)
     var item = req.body.newItem;
 
     if(req.body.list === "work") {
-        work.push(item);
+        let i = new WorkItem({
+            name: item
+        })
+        i.save()
         res.redirect("/work");
     }
     else {
@@ -67,8 +74,17 @@ app.post("/", function(req, res) {
 
 //Work route
 
+
 app.get("/work", function(req, res) {
-    res.render("list", {listTitle: "work", items: work});
+    WorkItem.find()
+    .then(result=> {
+        res.render("list", {listTitle: "work", items: result});
+    })
+    .catch(err => {
+        cosole.error('Error finding documents', err);
+        res.status(500).send('Error fetching items');
+            
+     })
 });
 
 
@@ -77,8 +93,14 @@ app.post("/delete", function(req, res) {
     var title = req.body.listName;
 
     if(title == "work") {
-        work.splice(id, 1);
-        res.redirect("/work"); 
+        WorkItem.deleteOne({_id: id})
+        .then(() => {
+            res.redirect("/work");
+        })
+        .catch(err => {
+            console.error('Error deleting item', err);
+            res.status(500).send('Error deleting item');
+        });
     }
     else {
         // console.log(id)
